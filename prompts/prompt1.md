@@ -3,6 +3,9 @@
 
 Prompt 1:
 
+The "requirement" is what I am trying to build.
+The "implementation-guide" is further refinement.
+Write the code in backend and frontend repositories for these two sections.
 
 
 [Requirement]:
@@ -16,11 +19,9 @@ interview process, and combines all of it with the job description to generate a
 company brief, a breakdown of the role, a bank of likely questions, flashcards, and a day-by-day study
 schedule. The user can then reshape any part of it, and practise against it inside the app.
 
-
 Two parts of this brief are exact rather than open: the kit structure in Section 5 and the batch entry
 point in Section 9. We run your pipeline against job descriptions you have not seen, so those two need
 to match. Everything else is yours to design.
-
 
 5. The Kit Structure
 Every generated kit must conform to the structure in Appendix A. You may extend it where that
@@ -30,7 +31,6 @@ comparable between submissions:
 Every requirement is marked must or nice, taken from how the posting words it. A “required”
 line and a “bonus points for” line are not the same thing.
 • Durations are integer minutes. No floats, no “about an hour”
-
 
 9. Batch Entry Point (Mandatory)
 Your repository must expose one command that reads a file of cases and writes the resulting kits to a
@@ -50,13 +50,10 @@ The company sites used with this command may be served from a local address, so 
 code must not assume a particular host and must follow relative links. This command must run from a
 clean clone.
 
-
 About LLM feature usage in the app:
 Bear in mind that free tiers limit tokens per minute, not just requests, and that limit is easy to hit. A
 pipeline that falls over the first time a provider says “slow down” is the most common way to lose points
 here.
-
-
 
 Application Overview
 Build an application where a user can:
@@ -71,9 +68,8 @@ schedule
 • Regenerate one section without losing edits made elsewhere
 • Practise against the flashcards and track what they have covered
 
-
-
 Core Requirements
+
 1. Authentication
 Implement secure registration, login and logout with session handling, so that a signed-out visitor
 cannot reach protected pages or endpoints.
@@ -82,6 +78,7 @@ cannot reach protected pages or endpoints.
 • Sensible handling of expired or invalid sessions
 Keep this layer minimal. Email verification, password reset and role hierarchies are out of scope and
 are not scored.
+
 2. Input and Research
 The job description is pasted directly into the interface as text, not fetched from a job board. Most
 boards block automated access, and we would rather you spent your time on the interesting part.
@@ -96,6 +93,67 @@ Finding the hiring page is the interesting half of this. Companies bury it in di
 /jobs, a handbook, an engineering blog — and the path cannot be hard-coded. When we tested this
 we guessed one company URL and got a 404, while GitLab and PostHog both publish detailed hiring processes at paths we would never have predicted. Crawl the site, rank the links, fetch what looks right. A fixed list of paths is not sufficient.
 Respect robots.txt and site terms, and say in your README which sources you used.
+
+3. Research and Generation
+This is the part of the assessment we care about most. The kit must be produced through a sequence
+of deliberate steps that respond to what has actually been found, not by a single prompt that returns
+everything at once. Your system should be able to:
+• Extract the relevant requirements from the job description
+• Retrieve and clean an individual page
+• Crawl a company site and work out which of its links are worth fetching
+• Look for public discussion of how the company interviews
+• Generate questions for a given requirement and category
+• Create a preparation schedule from the identified topics and the time available
+• Compare the generated questions against the extracted requirements to find what is not covered
+The sequencing has to be genuine. Pasted text needs no retrieval at all. A company homepage needs
+crawling before it is useful. A hiring-process page, once found, changes what questions make sense:
+a company that publishes a take-home followed by a system design round should produce a different
+kit from one that says nothing. And a requirement like five years of React leads to technical questions
+while mentoring junior engineers leads to behavioural ones; the two should not come from the same
+call with the same instructions.
+Two of these steps are deterministic and must not be handed to the model. Allocating topics across
+the days available is arithmetic, and the application should do it. Comparing the extracted
+requirements against the generated questions to find the gaps is likewise your code's decision to
+make, not the model's.
+
+4. The Second Pass
+The coverage check exists to force a loop rather than a single shot. After the first draft, the system
+compares the questions against the requirements, and any requirement with no question against it
+comes back as a gap. It must then act on those gaps — generating the missing questions — and
+check again.
+A kit that ships with uncovered must-have requirements has failed at the one job it had.
+
+6. The Builder
+The kit arrives as a draft. The interface has to make it genuinely reshapeable, because a prep kit
+nobody can adjust is worthless.
+• Edit any question, answer outline, flashcard or brief inline
+• Reorder questions, and move a question from one category to another
+• Add a question or flashcard by hand, and delete one
+• Regenerate a single section on its own — the company brief, one question category, or the
+schedule
+Regenerating one section must not discard edits the user has made elsewhere, and a question the 
+user wrote or edited by hand must survive a regeneration of its category.
+
+7. Practice Mode
+A kit the user only reads is a document. Make it something they can work through.
+• Step through flashcards one at a time, revealing the answer
+• Record how confident they felt on each card
+• Show what has been covered and what has not
+• Order the next session by what they were least confident about
+That last point is deliberately open. A simple confidence-weighted sort is fine; a proper spaced-repetition interval is fine.
+
+8. The Schedule
+The user says how many days they have. The application distributes the material across exactly that
+many days.
+• Every day has a focus, a set of question ids, and an integer duration in minutes
+• Every must-have requirement appears somewhere in the schedule
+• The number of days in the schedule equals the number of days requested
+• Harder and higher-priority material lands earlier, not the night before
+This is arithmetic and allocation. It belongs in your code, not in a prompt.
+
+Inventing requirements a description does not contain is worse than reporting that there were few. A
+thin description should produce a thin kit that says so, and a company you can find nothing about
+should produce an honest brief rather than a fabricated one.
 
 
 [Implementation-guide]:
@@ -112,11 +170,12 @@ Scraping: Python -> BeautifulSoup and Scrapy
 LLM: Gemini
     - Use npm install @google/genai
 
-
 Do not touch the README.md that already exists in the root of this repository.
 Instead, use AI_README.md for mentioning sources you used, while respecting robots.txt and site terms.
 
+Since a kit with uncovered must-have requirements is considered failed, passes should be made till the coverage of must-have requirements is 100%.
 
-
-
-
+Represent "generated", "edited" and "pinned" state explicitly.
+"Pinned" state must always be highlighted on top of the page.
+"Edited" should have a tag.
+"Generated" and "Regenerated" should be two different tags.
