@@ -28,6 +28,15 @@ you did not write, and you are feeding all of it to a model.
 Polish is welcome but is not the point. Interaction design is: how you handle a long-running generation,
 a partial failure, an edit in flight, and a regeneration that must not clobber someone's work.
 
+13. Backend Requirements
+• Implement a backend using Express.js
+• Keep retrieval, extraction, generation, scheduling and persistence as clearly separated concerns
+• Validate incoming requests, and validate a generated kit against the expected structure before
+saving it
+• Persist enough to reopen and continue a kit later
+• Handle errors gracefully and return useful, structured messages to the interface
+
+
 
 [Implementation-guide]:
 

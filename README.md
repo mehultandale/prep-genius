@@ -44,3 +44,12 @@ approach briefly in the README
     • The model returns invalid JSON or an incomplete kit
         -- This case should be sent to devs through error log
         -- Not implementing this case because ElasticSearch or similar service would be far-fetched for this assignment. Have used CRON in one of the places, instead of redis, for the same reason: limiting the scope.
+
+
+Generation is slow, external and failure-prone. Consider what happens when it takes ninety seconds,
+fails halfway, or is triggered twice for the same posting. Describe your approach briefly in the
+README.
+
+
+
+

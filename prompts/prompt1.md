@@ -84,7 +84,7 @@ The job description is pasted directly into the interface as text, not fetched f
 boards block automated access, and we would rather you spent your time on the interesting part.
 Alongside it the user gives the company website address, and that is where the retrieval work begins.
 • A textarea for the job description, and a field for the company website
-• A way to prepare for more than one role — pasting again, or uploading a file of descriptionand-company pairs
+• A way to prepare for more than one role — pasting again, or uploading a file of description-and-company pairs
 • Crawl the company site to find what they do and, if it exists, how they hire
 • Look for public discussion of that company's interview process
 • Skip and report a source that cannot be retrieved, rather than failing the whole run
@@ -154,6 +154,72 @@ This is arithmetic and allocation. It belongs in your code, not in a prompt.
 Inventing requirements a description does not contain is worse than reporting that there were few. A
 thin description should produce a thin kit that says so, and a company you can find nothing about
 should produce an honest brief rather than a fabricated one.
+
+Appendix A:
+
+{
+"source": { "company": "", "company_url": "",
+"role": "", "location": "",
+"jd_chars": 0, "researched_at": "",
+"pages_used": ["https://..."] },
+"company_brief": { "summary": "", "what_they_do": "",
+"sources": ["https://..."] },
+"role": {
+"title": "", "seniority": "",
+"responsibilities": [""],
+"requirements": [
+{ "id": "r1", "text": "5+ years with React",
+"kind": "technical", // technical | behavioural | domain
+"priority": "must" } // must | nice
+]
+},
+"questions": [
+{ "id": "q1", "requirement_ids": ["r1"],
+"category": "technical", // technical | behavioural |
+// system-design | company-fit
+"prompt": "", "answer_outline": "", "difficulty": 2 }
+],
+"flashcards": [
+{ "id": "f1", "front": "", "back": "",
+"requirement_ids": ["r1"] }
+],
+"schedule": {
+"days_available": 5,
+"days": [ { "day": 1, "focus": "",
+"question_ids": ["q1"], "minutes": 60 } ]
+},
+"coverage": { "uncovered_requirement_ids": [], "passes": 2 }
+}
+
+Appendix B:
+
+Appendix B — Batch Input and Output
+The input file given to the command in Section 9:
+[
+ { "id": "case-01",
+ "jd": "Senior Backend Engineer\n\nWe are looking for ...",
+ "company_url": "http://localhost:8099/acme/",
+ "days": 5 }
+]
+The file your command writes:
+{
+ "version": "1.0",
+ "generated_at": "2026-09-01T09:12:44Z",
+ "kits": [
+ { "id": "case-01",
+ "status": "ok",
+ "kit": { ... the structure from Appendix A ... },
+ "error": null },
+ { "id": "case-04",
+ "status": "failed",
+ "kit": null,
+ "error": { "code": "COMPANY_UNREACHABLE",
+ "message": "Company site unreachable after 3 retries." } }
+ ]
+}
+One entry per input case, in any order, keyed by the id given to you. A case you could only partially
+research is ok, with the gaps recorded honestly in the kit — a missing hiring page is not a failure.
+Reserve failed for a case you could not produce a kit for at all.
 
 
 [Implementation-guide]:
