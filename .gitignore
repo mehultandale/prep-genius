@@ -1,1 +1,11 @@
 .env
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.next/
+dist/
+*.tsbuildinfo
+.pytest_cache/
+.scrapy/

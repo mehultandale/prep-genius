@@ -53,3 +53,5 @@ README.
 
 
 
+[Prompts executed]:
+"Execute only prompt1.md from the prompts directory"
